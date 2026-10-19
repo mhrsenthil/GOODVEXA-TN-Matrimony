@@ -3,9 +3,8 @@ package com.goodvexa.matrimony;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -22,25 +21,20 @@ import android.net.NetworkInfo;
 public class MainActivity extends Activity {
 
     private WebView webView;
+    private View splashView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // தொடக்கத்தில் ஸ்பிளாஷ் ஸ்கிரீன் காட்டுதல்
-        showSplashScreen();
-
-        // 2.5 விநாடிகள் கழித்து இன்டர்நெட் உள்ளதா எனச் சோதித்து வெப்சைட் அல்லது ஆஃப்லைன் ஸ்கிரீன் காட்டுவது
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (isInternetAvailable()) {
-                showWebView();
-            } else {
-                showOfflineScreen();
-            }
-        }, 2500);
+        if (isInternetAvailable()) {
+            setupAppLayout();
+        } else {
+            showOfflineScreen();
+        }
     }
 
-    private void showSplashScreen() {
+    private View createSplashScreen() {
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setGravity(Gravity.CENTER);
@@ -54,14 +48,75 @@ public class MainActivity extends Activity {
         layout.addView(logo, logoParams);
 
         TextView title = new TextView(this);
-        title.setText("Goodvexa Matrimony 01");
+        title.setText("Goodvexa Matrimony");
         title.setTextSize(22);
         title.setTextColor(Color.rgb(190, 18, 60)); // Rose/Brand color
         title.setGravity(Gravity.CENTER);
         title.setPadding(10, 20, 10, 10);
 
         layout.addView(title);
-        setContentView(layout);
+        return layout;
+    }
+
+    private void setupAppLayout() {
+        // Main Container (FrameLayout layer-ஆக செயல்படும்)
+        android.widget.FrameLayout rootLayout = new android.widget.FrameLayout(this);
+        rootLayout.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+
+        // 1. WebView உருவாக்கம்
+        webView = new WebView(this);
+        webView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setDatabaseEnabled(true);
+        settings.setLoadsImagesAutomatically(true);
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        settings.setMediaPlaybackRequiresUserGesture(false);
+
+        // பக்கவாட்டு நகர்வைத் தடுக்கும் அமைப்புகள்
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setSupportZoom(false);
+        webView.setHorizontalScrollBarEnabled(false);
+
+        // 2. Splash Screen லேயர் உருவாக்கம்
+        splashView = createSplashScreen();
+
+        rootLayout.addView(webView);
+        rootLayout.addView(splashView);
+
+        setContentView(rootLayout);
+
+        // WebView Client - வெப்சைட் லோட் ஆனதும் Splash Screen-ஐ மறைக்க
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // பக்கத்தின் லோடிங் முடிந்ததும் ஸ்பிளாஷ் ஸ்கிரீனை மறைத்தல்
+                if (splashView != null) {
+                    splashView.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                if (request.isForMainFrame()) {
+                    showOfflineScreen();
+                }
+            }
+        });
+
+        // வெப்சைட் முகவரி லோடிங் தொடக்கம்
+        webView.loadUrl("https://tn.goodvexa.com/");
     }
 
     private boolean isInternetAvailable() {
@@ -109,7 +164,7 @@ public class MainActivity extends Activity {
 
         retryButton.setOnClickListener(v -> {
             if (isInternetAvailable()) {
-                showWebView();
+                setupAppLayout();
             } else {
                 android.widget.Toast.makeText(MainActivity.this, "Internet connection இல்லை", android.widget.Toast.LENGTH_SHORT).show();
             }
@@ -117,51 +172,6 @@ public class MainActivity extends Activity {
 
         layout.addView(retryButton);
         setContentView(layout);
-    }
-
-    private void showWebView() {
-        webView = new WebView(this);
-        
-        // WebView முழுத்திரையில் சரியாகத் தெரிய LayoutParams அமைத்தல்
-        webView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
-
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setLoadsImagesAutomatically(true);
-        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        settings.setMediaPlaybackRequiresUserGesture(false);
-
-        // **பக்கவாட்டு ஸ்கரோலைத் தவிர்க்கும் வியூபோர்ட் செட்டிங்ஸ்**
-        settings.setUseWideViewPort(true);
-        settings.setLoadWithOverviewMode(true);
-        settings.setSupportZoom(false);
-        webView.setHorizontalScrollBarEnabled(false);
-
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                view.loadUrl(request.getUrl().toString());
-                return true;
-            }
-
-            @Override
-            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                super.onReceivedError(view, request, error);
-                if (request.isForMainFrame()) {
-                    showOfflineScreen();
-                }
-            }
-        });
-
-        // உங்கள் மேட்ரிமோனி வெப்சைட் முகவரி
-        webView.loadUrl("https://tn.goodvexa.com/");
-
-        setContentView(webView);
     }
 
     @Override
