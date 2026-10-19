@@ -16,5 +16,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LearnEnglishThroughTamil"
+rootProject.name = "GOODVEXA-TN-Matrimony"
 include(":app")
