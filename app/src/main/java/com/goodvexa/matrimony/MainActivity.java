@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
         layout.addView(logo, logoParams);
 
         TextView title = new TextView(this);
-        title.setText("Goodvexa Matrimony");
+        title.setText("Goodvexa Matrimony 01");
         title.setTextSize(22);
         title.setTextColor(Color.rgb(190, 18, 60)); // Rose/Brand color
         title.setGravity(Gravity.CENTER);
