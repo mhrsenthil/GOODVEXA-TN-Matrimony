@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- இன்டர்நெட் பயன்பாட்டிற்கான அனுமதிகள் -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
+
     <application
         android:theme="@style/AppTheme"
         android:label="Goodvexa Matrimony"
         android:icon="@drawable/app_icon"
-        android:resizeableActivity="true">
+        android:resizeableActivity="true"
+        android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true">
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true">
 
             <intent-filter>
