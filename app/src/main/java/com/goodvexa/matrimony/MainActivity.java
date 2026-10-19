@@ -259,7 +259,7 @@ public class MainActivity extends Activity {
         );
 
         webView.loadUrl(
-                "https://learnenglishthroughtamilfree.blogspot.com/"
+                "https://tn.goodvexa.com/"
         );
 
         setContentView(webView);
