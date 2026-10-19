@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
         layout.addView(logo, logoParams);
 
         TextView title = new TextView(this);
-        title.setText("Learn English Through Tamil");
+        title.setText("Goodvexa Matrimony");
         title.setTextSize(22);
         title.setTextColor(Color.rgb(25, 118, 210));
         title.setGravity(Gravity.CENTER);
