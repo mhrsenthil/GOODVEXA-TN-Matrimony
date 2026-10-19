@@ -16,5 +16,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GOODVEXA-TN-Matrimony"
+rootProject.name = "GOODVEXAMatrimony"
 include(":app")
