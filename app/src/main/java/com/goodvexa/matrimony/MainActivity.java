@@ -122,7 +122,7 @@ public class MainActivity extends Activity {
     private void showWebView() {
         webView = new WebView(this);
         
-        // **முக்கிய திருத்தம்:** WebView முழுத்திரையில் சரியாகத் தெரிய LayoutParams அமைத்தல்
+        // WebView முழுத்திரையில் சரியாகத் தெரிய LayoutParams அமைத்தல்
         webView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -135,6 +135,12 @@ public class MainActivity extends Activity {
         settings.setLoadsImagesAutomatically(true);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         settings.setMediaPlaybackRequiresUserGesture(false);
+
+        // **பக்கவாட்டு ஸ்கரோலைத் தவிர்க்கும் வியூபோர்ட் செட்டிங்ஸ்**
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setSupportZoom(false);
+        webView.setHorizontalScrollBarEnabled(false);
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -165,13 +171,3 @@ public class MainActivity extends Activity {
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (webView != null) {
-            webView.destroy();
-        }
-        super.onDestroy();
-    }
-}
