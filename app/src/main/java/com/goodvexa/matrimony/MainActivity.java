@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
 
         ImageView logo = new ImageView(this);
         logo.setImageResource(
-                com.learnenglishthroughtamil.free.R.drawable.app_icon
+                com.goodvexa.matrimony.R.drawable.app_icon
         );
         logo.setAdjustViewBounds(true);
 
