@@ -29,7 +29,7 @@ jobs:
 
       - name: Verify MainActivity source
         run: |
-          grep -n 'goodvexa tn matrimony' app/src/main/java/com/goodvexa/matrimony/MainActivity.java
+          grep -n 'goodvexa matrimony' app/src/main/java/com/goodvexa/matrimony/MainActivity.java
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
