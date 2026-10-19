@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.learnenglishthroughtamil.free"
+    namespace = "com.goodvexa.matrimony"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.learnenglishthroughtamil.free"
+        applicationId = "com.goodvexa.matrimony"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
