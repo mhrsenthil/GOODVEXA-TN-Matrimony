@@ -12,6 +12,11 @@ import android.widget.TextView;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebChromeClient;
+import android.webkit.ValueCallback;
+import android.net.Uri;
+import android.content.Intent;
+import android.content.ActivityNotFoundException;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceError;
 import android.content.Context;
@@ -22,6 +27,10 @@ public class MainActivity extends Activity {
 
     private WebView webView;
     private View splashView;
+
+    // WebView HTML <input type="file"> support
+    private static final int FILE_CHOOSER_REQUEST_CODE = 1001;
+    private ValueCallback<Uri[]> filePathCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +95,49 @@ public class MainActivity extends Activity {
         settings.setLoadWithOverviewMode(true);
         settings.setSupportZoom(false);
         webView.setHorizontalScrollBarEnabled(false);
+
+        // Allow HTML file inputs (profile photo, horoscope, full photos) to open Android's picker.
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(
+                    WebView webView,
+                    ValueCallback<Uri[]> filePathCallback,
+                    FileChooserParams fileChooserParams) {
+
+                // Close any previous pending chooser request safely.
+                if (MainActivity.this.filePathCallback != null) {
+                    MainActivity.this.filePathCallback.onReceiveValue(null);
+                }
+                MainActivity.this.filePathCallback = filePathCallback;
+
+                Intent chooserIntent;
+                try {
+                    chooserIntent = fileChooserParams.createIntent();
+                } catch (Exception e) {
+                    chooserIntent = null;
+                }
+
+                if (chooserIntent == null) {
+                    chooserIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                    chooserIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                    chooserIntent.setType("*/*");
+                }
+
+                try {
+                    startActivityForResult(chooserIntent, FILE_CHOOSER_REQUEST_CODE);
+                    return true;
+                } catch (ActivityNotFoundException | SecurityException e) {
+                    MainActivity.this.filePathCallback = null;
+                    filePathCallback.onReceiveValue(null);
+                    android.widget.Toast.makeText(
+                            MainActivity.this,
+                            "File picker திறக்க முடியவில்லை. உங்கள் போனில் Files app உள்ளதா எனச் சரிபார்க்கவும்.",
+                            android.widget.Toast.LENGTH_LONG
+                    ).show();
+                    return false;
+                }
+            }
+        });
 
         // 2. Splash Screen லேயர் உருவாக்கம்
         splashView = createSplashScreen();
@@ -172,6 +224,34 @@ public class MainActivity extends Activity {
 
         layout.addView(retryButton);
         setContentView(layout);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
+            if (filePathCallback == null) {
+                return;
+            }
+
+            Uri[] results = null;
+            if (resultCode == RESULT_OK && data != null) {
+                Uri result = data.getData();
+                if (result != null) {
+                    results = new Uri[] { result };
+                } else if (data.getClipData() != null) {
+                    int count = data.getClipData().getItemCount();
+                    results = new Uri[count];
+                    for (int i = 0; i < count; i++) {
+                        results[i] = data.getClipData().getItemAt(i).getUri();
+                    }
+                }
+            }
+
+            filePathCallback.onReceiveValue(results);
+            filePathCallback = null;
+        }
     }
 
     @Override
